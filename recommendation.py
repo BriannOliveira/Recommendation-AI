@@ -66,20 +66,13 @@ receitas = preprocessar_ingredientes(receitas)
 
 
 # Função para calcular a similaridade entre as quantidades de ingredientes
-def calculate_similiraty(ingredients_dict, str_ingredients_recipes, ingredients_recipes):
+def calculate_similiraty(ingredients_dict, str_ingredients_recipes):
     vectorizer = TfidfVectorizer()
-    #print(str_ingredients_recipes)
-    recipes_matrix = vectorizer.fit_transform(str_ingredients_recipes)
 
-
-    targets_ingredients = " ".join(ingredients_dict.keys())
-    targets_matrix = vectorizer.transform([targets_ingredients])
-
-
-    similaridade = cosine_similarity(targets_matrix, recipes_matrix)
-
-    print(similaridade)
-    return similaridade[0]
+    all_ingredients = [" ".join(ingredients_dict.keys())] + str_ingredients_recipes
+    tfidf_matrix = vectorizer.fit_transform(all_ingredients)
+    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:])
+    return similarity[0]
 
 # Função para recomendar receitas com base nos ingredientes e calorias fornecidas
 def recomendar_receitas(lista_ingredientes, max_calorias, num_recomendacoes):
@@ -90,9 +83,10 @@ def recomendar_receitas(lista_ingredientes, max_calorias, num_recomendacoes):
     for idx, row in receitas.iterrows():
         if row['energy'] <= max_calorias:
             # Calcula a similaridade de ingredientes
-            similaridade = calculate_similiraty(lista_ingredientes, receitas['str_ingredients'], row['ingredients'])
-            similaridades.append((row['name'], row['energy'], row['ingredients'], similaridade))
-            print(idx," Comparando...")
+            similaridade = calculate_similiraty(lista_ingredientes, receitas['str_ingredients'])
+            similaridade_valor = similaridade[idx]
+            similaridades.append((row['name'], row['energy'], row['ingredients'], similaridade_valor))
+            print(idx," Comparando...", similaridade_valor)
 
     # Ordena as receitas pela similaridade (descendente)
     similaridades.sort(key=lambda x: x[3], reverse=True)
@@ -102,8 +96,8 @@ def recomendar_receitas(lista_ingredientes, max_calorias, num_recomendacoes):
     return pd.DataFrame(similaridades[:num_recomendacoes], columns=['nome', 'calorias', 'ingredientes', 'similaridade'])
 
 # Exemplo de uso
-lista_ingredientes = {'eggs': 2, 'parmesan': 30, 'noodle': 200}
-max_calorias = 10
+lista_ingredientes = {'banana': 2, 'apple': 2}
+max_calorias = 100
 recomendadas = recomendar_receitas(lista_ingredientes, max_calorias, num_recomendacoes=2)
 print(recomendadas)
 
