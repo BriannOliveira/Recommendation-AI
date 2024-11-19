@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 # Convertendo o dataset em um DataFrame
-receitas = pd.read_csv('archive/food-dataset-en.csv', skiprows=[1186], on_bad_lines='skip')
+receitas = pd.read_csv('archive/food-dataset-en.csv', nrows=5000, skiprows=[1186], on_bad_lines='skip')
 
 def extrair_calorias(energy_str):
     # Expressão regular para encontrar números seguidos da palavra 'kcal'
@@ -98,6 +98,6 @@ def recomendar_receitas(lista_ingredientes, max_calorias, num_recomendacoes):
 # Exemplo de uso
 lista_ingredientes = {'banana': 2, 'apple': 2}
 max_calorias = 100
-recomendadas = recomendar_receitas(lista_ingredientes, max_calorias, num_recomendacoes=2)
+recomendadas = recomendar_receitas(lista_ingredientes, max_calorias, num_recomendacoes=3)
 print(recomendadas)
 
